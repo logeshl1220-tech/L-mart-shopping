@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, uniqueIndex, index } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -25,4 +25,32 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
+export const wishlistItems = mysqlTable("wishlistItems", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  productHandle: varchar("productHandle", { length: 255 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, table => ({
+  userProductUnique: uniqueIndex("wishlist_user_product_unique").on(table.userId, table.productHandle),
+  userIndex: index("wishlist_user_idx").on(table.userId),
+}));
+
+export const productReviews = mysqlTable("productReviews", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  productHandle: varchar("productHandle", { length: 255 }).notNull(),
+  rating: int("rating").notNull(),
+  title: varchar("title", { length: 160 }),
+  body: text("body").notNull(),
+  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, table => ({
+  reviewerProductUnique: uniqueIndex("review_user_product_unique").on(table.userId, table.productHandle),
+  productStatusIndex: index("review_product_status_idx").on(table.productHandle, table.status),
+}));
+
+export type WishlistItem = typeof wishlistItems.$inferSelect;
+export type InsertWishlistItem = typeof wishlistItems.$inferInsert;
+export type ProductReview = typeof productReviews.$inferSelect;
+export type InsertProductReview = typeof productReviews.$inferInsert;

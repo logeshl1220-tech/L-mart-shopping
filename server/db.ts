@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, wishlistItems, productReviews } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -89,4 +89,57 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+export async function listWishlistItems(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(wishlistItems).where(eq(wishlistItems.userId, userId)).orderBy(desc(wishlistItems.createdAt));
+}
+
+export async function addWishlistItem(userId: number, productHandle: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  await db.insert(wishlistItems).values({ userId, productHandle }).onDuplicateKeyUpdate({ set: { productHandle } });
+  return listWishlistItems(userId);
+}
+
+export async function removeWishlistItem(userId: number, productHandle: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  await db.delete(wishlistItems).where(and(eq(wishlistItems.userId, userId), eq(wishlistItems.productHandle, productHandle)));
+  return listWishlistItems(userId);
+}
+
+export async function listApprovedReviews(productHandle: string) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select({ id: productReviews.id, productHandle: productReviews.productHandle, rating: productReviews.rating, title: productReviews.title, body: productReviews.body, createdAt: productReviews.createdAt, reviewerName: users.name })
+    .from(productReviews)
+    .leftJoin(users, eq(productReviews.userId, users.id))
+    .where(and(eq(productReviews.productHandle, productHandle), eq(productReviews.status, "approved")))
+    .orderBy(desc(productReviews.createdAt));
+}
+
+export async function createPendingReview(userId: number, productHandle: string, rating: number, title: string | null, body: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  await db.insert(productReviews).values({ userId, productHandle, rating, title, body, status: "pending" });
+  return { submitted: true as const, status: "pending" as const };
+}
+
+export async function listPendingReviews() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select({ id: productReviews.id, productHandle: productReviews.productHandle, rating: productReviews.rating, title: productReviews.title, body: productReviews.body, createdAt: productReviews.createdAt, reviewerName: users.name })
+    .from(productReviews)
+    .leftJoin(users, eq(productReviews.userId, users.id))
+    .where(eq(productReviews.status, "pending"))
+    .orderBy(desc(productReviews.createdAt));
+}
+
+export async function setReviewStatus(id: number, status: "approved" | "rejected") {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  await db.update(productReviews).set({ status }).where(eq(productReviews.id, id));
+  return { updated: true as const, status };
+}
+

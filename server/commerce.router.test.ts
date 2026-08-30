@@ -1,4 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+const mockListPendingReviews = vi.hoisted(() => vi.fn());
+const mockSetReviewStatus = vi.hoisted(() => vi.fn());
+vi.mock("./db", async () => {
+  const actual = await vi.importActual<typeof import("./db")>("./db");
+  return { ...actual, listPendingReviews: mockListPendingReviews, setReviewStatus: mockSetReviewStatus };
+});
 import { TRPCError } from "@trpc/server";
 import type { TrpcContext } from "./_core/context";
 import { appRouter } from "./routers";
@@ -211,5 +218,97 @@ describe("commerce input validation", () => {
       })
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("commerce customer boundaries", () => {
+  it("requires authentication for wishlist reads", async () => {
+    const caller = appRouter.createCaller(makeCtx());
+    await expect(caller.commerce.wishlist.list()).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+  });
+
+  it("rejects review bodies that are too short", async () => {
+    const user: AuthenticatedUser = {
+      id: 7,
+      openId: "reviewer",
+      email: "reviewer@example.com",
+      name: "Reviewer",
+      loginMethod: "manus",
+      role: "user",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      lastSignedIn: new Date(),
+    };
+    const caller = appRouter.createCaller(makeCtx(user));
+    await expect(caller.commerce.reviews.submit({ productHandle: "aria", rating: 5, body: "short" })).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+});
+
+describe("commerce authorization", () => {
+  it("requires authentication for wishlist add and remove", async () => {
+    const caller = appRouter.createCaller(makeCtx());
+    await expect(caller.commerce.wishlist.add({ productHandle: "aria" })).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+    await expect(caller.commerce.wishlist.remove({ productHandle: "aria" })).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+  });
+
+  it("restricts review moderation to administrators", async () => {
+    const user: AuthenticatedUser = {
+      id: 8,
+      openId: "regular-user",
+      email: "user@example.com",
+      name: "Regular User",
+      loginMethod: "manus",
+      role: "user",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      lastSignedIn: new Date(),
+    };
+    const caller = appRouter.createCaller(makeCtx(user));
+    await expect(caller.commerce.reviews.pending()).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(caller.commerce.reviews.moderate({ id: 1, status: "approved" })).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+});
+
+describe("commerce moderation success", () => {
+  it("allows an administrator to approve a pending review", async () => {
+    const admin: AuthenticatedUser = {
+      id: 9,
+      openId: "admin-user",
+      email: "admin@example.com",
+      name: "Admin User",
+      loginMethod: "manus",
+      role: "admin",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      lastSignedIn: new Date(),
+    };
+    const pending = [{ id: 42, productHandle: "aria", rating: 5, title: "Lovely", body: "A genuine customer note.", createdAt: new Date(), reviewerName: "Customer" }];
+    mockListPendingReviews.mockResolvedValueOnce(pending);
+    mockSetReviewStatus.mockResolvedValueOnce({ updated: true as const, status: "approved" as const });
+    const caller = appRouter.createCaller(makeCtx(admin));
+    await expect(caller.commerce.reviews.pending()).resolves.toEqual(pending);
+    await expect(caller.commerce.reviews.moderate({ id: 42, status: "approved" })).resolves.toEqual({ updated: true, status: "approved" });
+    expect(mockSetReviewStatus).toHaveBeenCalledWith(42, "approved");
+  });
+});
+
+
+describe("commerce moderation rejection", () => {
+  it("allows an administrator to reject a pending review", async () => {
+    const admin: AuthenticatedUser = {
+      id: 10,
+      openId: "admin-reject-user",
+      email: "admin-reject@example.com",
+      name: "Admin Reject User",
+      loginMethod: "manus",
+      role: "admin",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      lastSignedIn: new Date(),
+    };
+    mockSetReviewStatus.mockResolvedValueOnce({ updated: true as const, status: "rejected" as const });
+    const caller = appRouter.createCaller(makeCtx(admin));
+    await expect(caller.commerce.reviews.moderate({ id: 43, status: "rejected" })).resolves.toEqual({ updated: true, status: "rejected" });
+    expect(mockSetReviewStatus).toHaveBeenCalledWith(43, "rejected");
   });
 });

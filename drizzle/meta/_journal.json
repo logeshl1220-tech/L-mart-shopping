@@ -8,6 +8,13 @@
       "when": 1788070128824,
       "tag": "0000_sticky_hellion",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1788071469614,
+      "tag": "0001_gigantic_micromax",
+      "breakpoints": true
     }
   ]
 }

@@ -14,3 +14,26 @@
 - [x] Implement and verify Shopify discount support in the storefront/cart flow, or document the provider boundary clearly.
 - [x] Complete an accessibility pass for focus states, keyboard flow, labels, semantics, and mobile interactions.
 - [x] Document the Shopify ownership boundary for customer accounts and admin-managed orders; retain injected commerce tests plus explicit invalid-quantity coverage.
+
+## Enhancement request
+
+- [x] Add database-backed wishlist persistence per authenticated customer, with add/remove/list behavior across sessions.
+- [x] Add advanced listing filters for product type, price range, availability, and tags, plus explicit sort modes.
+- [x] Add genuine customer review submission, moderation state, rating aggregation, and honest empty states without seeded reviews or ratings.
+- [x] Add/update Vitest coverage for wishlist authentication boundaries, review validation, cart validation, catalog normalization, and live commerce smoke behavior.
+- [x] Re-run type checks, tests, build, responsive visual verification, and save an enhancement checkpoint.
+
+## Verification follow-up
+
+- [x] Correct sort labels and behavior so Featured, A–Z, Z–A, and price modes match their visible semantics.
+- [x] Add Vitest coverage for wishlist add/remove authorization, approved-review aggregation, moderation behavior, and advanced filter/sort logic.
+
+## Final verification follow-up
+
+- [x] Run mobile visual verification for the wishlist, advanced filters, and product review flows, then save a new enhancement checkpoint.
+- [x] Add Vitest coverage for successful administrator review approval/rejection behavior.
+
+## Delivery follow-up
+
+- [x] Add successful administrator rejection coverage for pending reviews.
+- [ ] Save a new enhancement checkpoint after all wishlist, discovery, review, and responsive verification work.

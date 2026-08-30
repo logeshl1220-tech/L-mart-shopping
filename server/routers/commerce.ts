@@ -8,6 +8,7 @@
  */
 
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import {
   addCartLines,
   createCart,
@@ -19,7 +20,14 @@ import {
   removeCartLines,
   updateCartLines,
 } from "../_core/shopify";
-import { publicProcedure, router } from "../_core/trpc";
+import { protectedProcedure, publicProcedure, router } from "../_core/trpc";
+import { addWishlistItem, createPendingReview, listApprovedReviews, listPendingReviews, listWishlistItems, removeWishlistItem, setReviewStatus } from "../db";
+import { summarizeReviews } from "@shared/commerce/reviews";
+
+const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN" });
+  return next();
+});
 
 const cartLineInputSchema = z.object({
   variantId: z.string().min(1),
@@ -118,6 +126,20 @@ export const commerceRouter = router({
       .mutation(async ({ input }) => {
         return removeCartLines(input.cartId, input.lineIds);
       }),
+  }),
+  wishlist: router({
+    list: protectedProcedure.query(({ ctx }) => listWishlistItems(ctx.user.id)),
+    add: protectedProcedure.input(z.object({ productHandle: z.string().min(1).max(255) })).mutation(({ ctx, input }) => addWishlistItem(ctx.user.id, input.productHandle)),
+    remove: protectedProcedure.input(z.object({ productHandle: z.string().min(1).max(255) })).mutation(({ ctx, input }) => removeWishlistItem(ctx.user.id, input.productHandle)),
+  }),
+  reviews: router({
+    list: publicProcedure.input(z.object({ productHandle: z.string().min(1).max(255) })).query(async ({ input }) => {
+      const reviews = await listApprovedReviews(input.productHandle);
+      return { reviews, ...summarizeReviews(reviews) };
+    }),
+    submit: protectedProcedure.input(z.object({ productHandle: z.string().min(1).max(255), rating: z.number().int().min(1).max(5), title: z.string().trim().max(160).optional(), body: z.string().trim().min(10).max(4000) })).mutation(({ ctx, input }) => createPendingReview(ctx.user.id, input.productHandle, input.rating, input.title?.trim() || null, input.body.trim())),
+    pending: adminProcedure.query(() => listPendingReviews()),
+    moderate: adminProcedure.input(z.object({ id: z.number().int().positive(), status: z.enum(["approved", "rejected"]) })).mutation(({ input }) => setReviewStatus(input.id, input.status)),
   }),
 });
 
