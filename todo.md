@@ -36,4 +36,4 @@
 ## Delivery follow-up
 
 - [x] Add successful administrator rejection coverage for pending reviews.
-- [ ] Save a new enhancement checkpoint after all wishlist, discovery, review, and responsive verification work.
+- [x] Save a new enhancement checkpoint after all wishlist, discovery, review, and responsive verification work.
