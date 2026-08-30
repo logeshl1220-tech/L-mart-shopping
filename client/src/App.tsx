@@ -14,7 +14,8 @@ function AccountPage() {
         <p className="eyebrow">Your L-mart account</p>
         <h1 className="mt-4 font-display text-4xl tracking-[-.04em] sm:text-5xl">Shopping, kept personal.</h1>
         <p className="mt-5 max-w-xl text-base leading-7 text-[#6d6a61]">Sign in to continue to your saved account. Orders, delivery addresses, returns, and account history are managed through the connected Shopify customer experience.</p>
-        <a className="button-primary mt-8 inline-flex" href="/api/oauth/login">Sign in to L-mart</a>
+        <div className="mt-8 flex flex-wrap gap-3"><a className="button-primary inline-flex" href="/api/oauth/login">Sign in to L-mart</a><a className="button-secondary inline-flex" href="https://lmartshop-xybjqapb-falcon-boulder-35xucq5z.myshopify.com/account" target="_blank" rel="noreferrer">Open Shopify account</a></div>
+        <div className="mt-10 grid gap-3 border-t border-[#e7e1d7] pt-6 sm:grid-cols-3"><div><p className="text-xs font-semibold uppercase tracking-[.12em]">Addresses</p><p className="mt-2 text-sm leading-6 text-[#777269]">Saved securely in Shopify checkout.</p></div><div><p className="text-xs font-semibold uppercase tracking-[.12em]">Order history</p><p className="mt-2 text-sm leading-6 text-[#777269]">Available in your Shopify account.</p></div><div><p className="text-xs font-semibold uppercase tracking-[.12em]">Store operations</p><a className="mt-2 inline-block text-sm text-[#a6604d] underline-offset-4 hover:underline" href="https://admin.shopify.com/store/lmartshop-xybjqapb-falcon-boulder-35xucq5z" target="_blank" rel="noreferrer">Open Shopify Admin ↗</a></div></div>
       </div>
     </main>
   );

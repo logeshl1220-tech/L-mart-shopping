@@ -18,7 +18,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
         <div className="product-image relative overflow-hidden rounded-[1.35rem] bg-[#ece8df]">
           {product.images[0] ? <img src={product.images[0].url} alt={product.images[0].altText ?? product.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]" /> : <div className="flex h-full items-center justify-center text-[#918b7f]"><Sparkles /></div>}
           <span className="absolute left-3 top-3 rounded-full bg-[#fbfaf7]/90 px-3 py-1 text-[10px] font-semibold uppercase tracking-[.16em] text-[#37352f]">{product.productType || "Featured"}</span>
-          <button type="button" aria-label={`Save ${product.title}`} onClick={(event) => { event.preventDefault(); toast("Wishlist sync is available after signing in."); }} className="absolute right-3 top-3 rounded-full bg-[#fbfaf7]/90 p-2 text-[#37352f] transition hover:bg-white"><Heart size={16} strokeWidth={1.8} /></button>
+          <button type="button" aria-label={`Save ${product.title}`} onClick={(event) => { event.preventDefault(); window.location.assign("/account"); }} className="absolute right-3 top-3 rounded-full bg-[#fbfaf7]/90 p-2 text-[#37352f] transition hover:bg-white"><Heart size={16} strokeWidth={1.8} /></button>
         </div>
         <div className="mt-4 flex items-start justify-between gap-3">
           <div><h3 className="font-medium tracking-[-.02em] text-[#25241f]">{product.title}</h3><p className="mt-1 text-sm text-[#777269]">{product.vendor || "L-mart edit"}</p></div>
