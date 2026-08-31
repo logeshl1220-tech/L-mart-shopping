@@ -288,7 +288,7 @@ describe("commerce moderation success", () => {
     const caller = appRouter.createCaller(makeCtx(admin));
     await expect(caller.commerce.reviews.pending()).resolves.toEqual(pending);
     await expect(caller.commerce.reviews.moderate({ id: 42, status: "approved" })).resolves.toEqual({ updated: true, status: "approved" });
-    expect(mockSetReviewStatus).toHaveBeenCalledWith(42, "approved", false);
+    expect(mockSetReviewStatus).toHaveBeenCalledWith(42, "approved");
   });
 });
 
@@ -309,6 +309,19 @@ describe("commerce moderation rejection", () => {
     mockSetReviewStatus.mockResolvedValueOnce({ updated: true as const, status: "rejected" as const });
     const caller = appRouter.createCaller(makeCtx(admin));
     await expect(caller.commerce.reviews.moderate({ id: 43, status: "rejected" })).resolves.toEqual({ updated: true, status: "rejected" });
-    expect(mockSetReviewStatus).toHaveBeenCalledWith(43, "rejected", false);
+    expect(mockSetReviewStatus).toHaveBeenCalledWith(43, "rejected");
+  });
+});
+
+
+describe("commerce moderation trust boundary", () => {
+  it("rejects manual verifiedPurchase input at the API boundary", async () => {
+    const admin: AuthenticatedUser = {
+      id: 11, openId: "admin-boundary", email: "boundary@example.com", name: "Boundary Admin",
+      loginMethod: "manus", role: "admin", createdAt: new Date(), updatedAt: new Date(), lastSignedIn: new Date(),
+    };
+    const caller = appRouter.createCaller(makeCtx(admin));
+    await expect(caller.commerce.reviews.moderate({ id: 44, status: "approved", verifiedPurchase: true } as never)).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    expect(mockSetReviewStatus).not.toHaveBeenCalledWith(44, "approved");
   });
 });

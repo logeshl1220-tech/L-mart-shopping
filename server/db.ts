@@ -136,10 +136,10 @@ export async function listPendingReviews() {
     .orderBy(desc(productReviews.createdAt));
 }
 
-export async function setReviewStatus(id: number, status: "approved" | "rejected", verifiedPurchase = false) {
+export async function setReviewStatus(id: number, status: "approved" | "rejected") {
   const db = await getDb();
   if (!db) throw new Error("Database unavailable");
-  await db.update(productReviews).set({ status, verifiedPurchase: status === "approved" ? verifiedPurchase : false }).where(eq(productReviews.id, id));
+  await db.update(productReviews).set({ status, verifiedPurchase: false }).where(eq(productReviews.id, id));
   return { updated: true as const, status };
 }
 

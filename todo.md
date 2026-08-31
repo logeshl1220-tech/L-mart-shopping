@@ -40,10 +40,12 @@
 
 ## New enhancement request
 
-- [ ] Keep verified-purchase badges disabled until a real Shopify order/customer reconciliation path is available; do not permit manual evidence claims.
+- [x] Keep verified-purchase badges disabled until a real Shopify order/customer reconciliation path is available; do not permit manual evidence claims.
 - [x] Integrate a fuller customer account flow for profile, saved addresses, order history, sign-in, and sign-out using the app session plus Shopify customer-account handoff.
 - [x] Add recently viewed products with bounded resilient localStorage persistence and homepage/product-detail sections.
 - [x] Enhance the slide-out cart drawer with visible line management, totals, and a Quick checkout with Shopify action.
 - [x] Package the reusable L-mart Shopify storefront workflow as a validated skill using skill-creator.
 - [x] Add/update tests, run fresh mobile verification for the newest changes, save a final checkpoint, and deliver the project plus skill.
 - [x] Harden recently viewed localStorage parsing against malformed browser data and run fresh mobile verification after the newest changes.
+- [x] Remove the verifiedPurchase input from review moderation and hardcode persisted verified state to false until real Shopify order/customer reconciliation exists; add regression coverage.
+- [x] Add an explicit regression test proving unknown verifiedPurchase input cannot alter persisted review verification state.

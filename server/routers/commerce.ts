@@ -139,7 +139,7 @@ export const commerceRouter = router({
     }),
     submit: protectedProcedure.input(z.object({ productHandle: z.string().min(1).max(255), rating: z.number().int().min(1).max(5), title: z.string().trim().max(160).optional(), body: z.string().trim().min(10).max(4000) })).mutation(({ ctx, input }) => createPendingReview(ctx.user.id, input.productHandle, input.rating, input.title?.trim() || null, input.body.trim())),
     pending: adminProcedure.query(() => listPendingReviews()),
-    moderate: adminProcedure.input(z.object({ id: z.number().int().positive(), status: z.enum(["approved", "rejected"]), verifiedPurchase: z.boolean().default(false) })).mutation(({ input }) => setReviewStatus(input.id, input.status, input.verifiedPurchase)),
+    moderate: adminProcedure.input(z.object({ id: z.number().int().positive(), status: z.enum(["approved", "rejected"]) }).strict()).mutation(({ input }) => setReviewStatus(input.id, input.status)),
   }),
 });
 
