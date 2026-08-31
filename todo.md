@@ -49,3 +49,10 @@
 - [x] Harden recently viewed localStorage parsing against malformed browser data and run fresh mobile verification after the newest changes.
 - [x] Remove the verifiedPurchase input from review moderation and hardcode persisted verified state to false until real Shopify order/customer reconciliation exists; add regression coverage.
 - [x] Add an explicit regression test proving unknown verifiedPurchase input cannot alter persisted review verification state.
+
+## Payment-flow bug
+
+- [x] Trace why the cart payment/checkout action is not displaying or opening for customers.
+- [x] Repair the cart-to-Shopify checkout handoff with a visible payment action, popup-safe navigation, and clear unavailable/error states.
+- [x] Add/update tests and run responsive verification for the cart and payment entry flow before saving a fix checkpoint.
+- [x] Add regression coverage for checkout readiness and document the browser-navigation test boundary for the dedicated cart payment-entry route and popup-safe handoff.

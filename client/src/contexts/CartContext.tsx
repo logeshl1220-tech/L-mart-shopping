@@ -163,7 +163,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const proceedToCheckout = useCallback(() => {
     if (!cart?.checkoutUrl) return;
     // checkoutUrl already has channel=online_store appended server-side.
-    window.open(cart.checkoutUrl, "_blank", "noopener,noreferrer");
+    // Same-window navigation avoids popup blockers hiding the payment page.
+    window.location.assign(cart.checkoutUrl);
   }, [cart]);
 
   const value = useMemo<CartContextValue>(

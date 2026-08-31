@@ -8,6 +8,7 @@ import ProductDetail from "./pages/ProductDetail";
 import Wishlist from "./pages/Wishlist";
 import AdminReviews from "./pages/AdminReviews";
 import Account from "./pages/Account";
+import Cart from "./pages/Cart";
 import NotFound from "./pages/NotFound";
 
 function Router() {
@@ -16,6 +17,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/product/:handle" component={ProductDetail} />
       <Route path="/account" component={Account} />
+      <Route path="/cart" component={Cart} />
       <Route path="/wishlist" component={Wishlist} />
       <Route path="/admin/reviews" component={AdminReviews} />
       <Route path="/404" component={NotFound} />
