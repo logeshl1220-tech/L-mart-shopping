@@ -1,0 +1,12 @@
+import { Link } from "wouter";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { startLogin } from "@/const";
+
+const SHOPIFY_ACCOUNT = "https://lmartshop-xybjqapb-falcon-boulder-35xucq5z.myshopify.com/account";
+const SHOPIFY_ADMIN = "https://admin.shopify.com/store/lmartshop-xybjqapb-falcon-boulder-35xucq5z";
+
+export default function Account() {
+  const { user, loading, isAuthenticated, logout } = useAuth();
+  if (loading) return <main className="min-h-screen bg-[#f7f4ee] p-10 text-[#777269]">Loading account…</main>;
+  return <main className="min-h-screen bg-[#f7f4ee] px-5 py-12 text-[#25241f] sm:py-20"><div className="mx-auto max-w-4xl"><Link href="/" className="text-sm text-[#777269]">← Back to shop</Link><div className="mt-8 rounded-[2rem] border border-[#dfd9cd] bg-white p-8 shadow-[0_20px_70px_rgba(50,45,35,.08)] sm:p-12"><p className="eyebrow">Your L-mart account</p><h1 className="mt-4 font-display text-5xl tracking-[-.05em]">Shopping, kept personal.</h1>{!isAuthenticated ? <><p className="mt-5 max-w-xl text-base leading-7 text-[#6d6a61]">Sign in to manage your L-mart profile, wishlist, reviews, and Shopify customer account.</p><button onClick={() => startLogin()} className="button-primary mt-8">Sign in to L-mart</button></> : <><div className="mt-7 rounded-2xl bg-[#f1ece3] p-5"><p className="text-xs uppercase tracking-[.14em] text-[#8d877b]">Signed in as</p><p className="mt-2 text-lg font-medium">{user?.name || user?.email || "L-mart customer"}</p>{user?.email && <p className="mt-1 text-sm text-[#777269]">{user.email}</p>}</div><div className="mt-8 grid gap-4 sm:grid-cols-2"><a href={SHOPIFY_ACCOUNT} target="_blank" rel="noreferrer" className="account-card"><strong>Orders & addresses ↗</strong><span>View Shopify-managed order history, delivery addresses, returns, and account settings.</span></a><Link href="/wishlist" className="account-card"><strong>Saved products →</strong><span>Return to your persistent L-mart wishlist.</span></Link><Link href="/admin/reviews" className="account-card"><strong>Review moderation →</strong><span>Available to administrators for genuine customer submissions.</span></Link><a href={SHOPIFY_ADMIN} target="_blank" rel="noreferrer" className="account-card"><strong>Shopify Admin ↗</strong><span>Manage catalog, inventory, orders, payments, and fulfillment in Shopify.</span></a></div><button onClick={() => logout()} className="button-secondary mt-8">Sign out</button></>}</div></div></main>;
+}

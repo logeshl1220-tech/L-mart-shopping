@@ -288,7 +288,7 @@ describe("commerce moderation success", () => {
     const caller = appRouter.createCaller(makeCtx(admin));
     await expect(caller.commerce.reviews.pending()).resolves.toEqual(pending);
     await expect(caller.commerce.reviews.moderate({ id: 42, status: "approved" })).resolves.toEqual({ updated: true, status: "approved" });
-    expect(mockSetReviewStatus).toHaveBeenCalledWith(42, "approved");
+    expect(mockSetReviewStatus).toHaveBeenCalledWith(42, "approved", false);
   });
 });
 
@@ -309,6 +309,6 @@ describe("commerce moderation rejection", () => {
     mockSetReviewStatus.mockResolvedValueOnce({ updated: true as const, status: "rejected" as const });
     const caller = appRouter.createCaller(makeCtx(admin));
     await expect(caller.commerce.reviews.moderate({ id: 43, status: "rejected" })).resolves.toEqual({ updated: true, status: "rejected" });
-    expect(mockSetReviewStatus).toHaveBeenCalledWith(43, "rejected");
+    expect(mockSetReviewStatus).toHaveBeenCalledWith(43, "rejected", false);
   });
 });

@@ -1,0 +1,1 @@
+ALTER TABLE `productReviews` ADD `verifiedPurchase` boolean DEFAULT false NOT NULL;

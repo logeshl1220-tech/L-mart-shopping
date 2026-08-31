@@ -15,6 +15,13 @@
       "when": 1788071469614,
       "tag": "0001_gigantic_micromax",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1788072935904,
+      "tag": "0002_fearless_titanium_man",
+      "breakpoints": true
     }
   ]
 }

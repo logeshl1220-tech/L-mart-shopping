@@ -112,7 +112,7 @@ export async function removeWishlistItem(userId: number, productHandle: string) 
 export async function listApprovedReviews(productHandle: string) {
   const db = await getDb();
   if (!db) return [];
-  return db.select({ id: productReviews.id, productHandle: productReviews.productHandle, rating: productReviews.rating, title: productReviews.title, body: productReviews.body, createdAt: productReviews.createdAt, reviewerName: users.name })
+  return db.select({ id: productReviews.id, productHandle: productReviews.productHandle, rating: productReviews.rating, title: productReviews.title, body: productReviews.body, verifiedPurchase: productReviews.verifiedPurchase, createdAt: productReviews.createdAt, reviewerName: users.name })
     .from(productReviews)
     .leftJoin(users, eq(productReviews.userId, users.id))
     .where(and(eq(productReviews.productHandle, productHandle), eq(productReviews.status, "approved")))
@@ -129,17 +129,17 @@ export async function createPendingReview(userId: number, productHandle: string,
 export async function listPendingReviews() {
   const db = await getDb();
   if (!db) return [];
-  return db.select({ id: productReviews.id, productHandle: productReviews.productHandle, rating: productReviews.rating, title: productReviews.title, body: productReviews.body, createdAt: productReviews.createdAt, reviewerName: users.name })
+  return db.select({ id: productReviews.id, productHandle: productReviews.productHandle, rating: productReviews.rating, title: productReviews.title, body: productReviews.body, verifiedPurchase: productReviews.verifiedPurchase, createdAt: productReviews.createdAt, reviewerName: users.name })
     .from(productReviews)
     .leftJoin(users, eq(productReviews.userId, users.id))
     .where(eq(productReviews.status, "pending"))
     .orderBy(desc(productReviews.createdAt));
 }
 
-export async function setReviewStatus(id: number, status: "approved" | "rejected") {
+export async function setReviewStatus(id: number, status: "approved" | "rejected", verifiedPurchase = false) {
   const db = await getDb();
   if (!db) throw new Error("Database unavailable");
-  await db.update(productReviews).set({ status }).where(eq(productReviews.id, id));
+  await db.update(productReviews).set({ status, verifiedPurchase: status === "approved" ? verifiedPurchase : false }).where(eq(productReviews.id, id));
   return { updated: true as const, status };
 }
 
